@@ -1,16 +1,27 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: argocd-helloworld
-  labels:
-    name: argocd-helloworld
+  name: nginx-prod # 이름이 바뀌었다.
 spec:
-  containers:
-  - name: argocd-helloworld
-    image: nginx
-    resources:
-      limits:
-        memory: "64Mi"
-        cpu: "0.2"
-    ports:
-      - containerPort: 80
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 3 # 1 -> 3으로 증가했다.
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: prod-secret # 이름이 바뀌었다.
+          mountPath: "/etc/foo"
+          readOnly: true
+      volumes:
+      - name: prod-secret
+        secret:
+          secretName: mysecret
